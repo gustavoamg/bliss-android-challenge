@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Bliss Android Challenge</string>
+    <string name="fetch_emojis">Fetch Emojis</string>
 </resources>

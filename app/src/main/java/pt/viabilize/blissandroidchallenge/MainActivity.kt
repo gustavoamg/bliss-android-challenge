@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import pt.viabilize.blissandroidchallenge.ui.mainscreen.MainScreen
 import pt.viabilize.blissandroidchallenge.ui.theme.BlissAndroidChallengeTheme
 
 @AndroidEntryPoint
@@ -22,9 +23,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             BlissAndroidChallengeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                    MainScreen(modifier = Modifier
+                        .padding(innerPadding)
                     )
                 }
             }
