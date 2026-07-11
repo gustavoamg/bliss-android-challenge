@@ -4,14 +4,18 @@ package pt.viabilize.blissandroidchallenge.ui.mainscreen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pt.viabilize.blissandroidchallenge.R
 import pt.viabilize.blissandroidchallenge.ui.mainscreen.components.RandomEmojiComponent
 
 
@@ -19,14 +23,21 @@ import pt.viabilize.blissandroidchallenge.ui.mainscreen.components.RandomEmojiCo
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel : MainScreenViewModel = hiltViewModel(),
+    onNavigateToEmojiList: () -> Unit
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     MainScreenContents(
         viewState = uiState
     ) { mainScreenActions ->
-        viewModel.onAction(mainScreenActions)
+        when (mainScreenActions) {
+            is MainScreenActions.EmojiListButtonClick -> {
+                onNavigateToEmojiList()
+            }
+            else ->
+                viewModel.onAction(mainScreenActions)
+        }
+
     }
 }
 
@@ -52,6 +63,15 @@ fun MainScreenContents(
                     onAction(MainScreenActions.RandomEmojiButtonAction)
                 }
             )
+            Button (
+                onClick = {
+                    onAction(MainScreenActions.EmojiListButtonClick)
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.emoji_list)
+                )
+            }
         }
     }
 }

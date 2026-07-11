@@ -14,6 +14,7 @@ The following stack is used in this development:
 | CDI | Hilt |   2.60.1   |
 | API Consumption | Retrofit |   3.0.0    |
 | Local Persistence | Room |    2.8.4     |
+| Navigation | Navigation 3 | 1.1.4 |
 
 
  
