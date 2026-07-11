@@ -1,17 +1,25 @@
 package pt.viabilize.blissandroidchallenge.repository
 
 import android.util.Log
+import kotlinx.serialization.SerializationException
 import pt.viabilize.blissandroidchallenge.data.GithubDatasource
-import pt.viabilize.blissandroidchallenge.data.local.LocalDatabase
+import pt.viabilize.blissandroidchallenge.data.exception.AvatarNotFoundException
+import pt.viabilize.blissandroidchallenge.data.exception.NetworkException
+import pt.viabilize.blissandroidchallenge.data.local.dao.AvatarDao
 import pt.viabilize.blissandroidchallenge.data.local.dao.EmojiDao
+import pt.viabilize.blissandroidchallenge.data.local.mapper.toAvatar
 import pt.viabilize.blissandroidchallenge.data.local.mapper.toEmoji
 import pt.viabilize.blissandroidchallenge.data.local.mapper.toEmojiEntity
+import pt.viabilize.blissandroidchallenge.data.local.mapper.toEntity
+import pt.viabilize.blissandroidchallenge.data.local.model.AvatarEntity
+import pt.viabilize.blissandroidchallenge.model.Avatar
 import pt.viabilize.blissandroidchallenge.model.Emoji
 import javax.inject.Inject
 
 class GitHubRepositoryImpl @Inject constructor(
-    val dataSourceRemote: GithubDatasource,
-    val emojiDatasourceLocal: EmojiDao
+    val gitHubDataSourceRemote: GithubDatasource,
+    val emojiDatasourceLocal: EmojiDao,
+    val avatarDatasourceLocal: AvatarDao
 ) : GitHubRepository {
     val TAG = "GITHUB_REPOSITORY"
 
@@ -20,7 +28,7 @@ class GitHubRepositoryImpl @Inject constructor(
         val localEmojis = emojiDatasourceLocal.getAll()
         if(localEmojis.isEmpty()) {
             Log.i (TAG, "No local data found. Fetching from GitHub.")
-            val response: Map<String, String>? = dataSourceRemote.listEmojis().body()
+            val response: Map<String, String>? = gitHubDataSourceRemote.listEmojis().body()
             val emojiList = response?.map { (key, value) ->
                 Emoji(key, value)
             } ?: emptyList()
@@ -36,6 +44,36 @@ class GitHubRepositoryImpl @Inject constructor(
             return localEmojis.map {
                 it.toEmoji()
             }
+        }
+    }
+
+    override suspend fun findAvatar(username: String): Avatar {
+        Log.i (TAG, "Looking up for avatar $username in local database")
+        val avatarLocal: AvatarEntity? = avatarDatasourceLocal.findByName(username)
+        return if(avatarLocal == null) {
+            Log.i (TAG, "Avatar not found. Looking up on GitHub")
+            val avatarResponse = gitHubDataSourceRemote.searchAvatar(username)
+            when (avatarResponse.code()) {
+                200 -> {
+                    val avatar = avatarResponse.body()?.toAvatar()
+
+                    if (avatar != null) {
+                        Log.i(TAG, "Avatar found!")
+                        avatarDatasourceLocal.insertAll(avatar.toEntity())
+                        Log.i(TAG, "Avatar persisted locally")
+
+                        avatar
+                    }
+                    else {
+                        throw SerializationException("Invalid response!")
+                    }
+                }
+                404 -> throw AvatarNotFoundException()
+                else -> throw NetworkException()
+            }
+        }
+        else {
+            avatarLocal.toAvatar()
         }
     }
 }

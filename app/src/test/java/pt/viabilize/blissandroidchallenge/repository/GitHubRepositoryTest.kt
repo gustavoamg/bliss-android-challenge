@@ -1,21 +1,29 @@
 package pt.viabilize.blissandroidchallenge.repository
 
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerializationException
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import pt.viabilize.blissandroidchallenge.data.GithubDatasource
+import pt.viabilize.blissandroidchallenge.data.exception.AvatarNotFoundException
+import pt.viabilize.blissandroidchallenge.data.exception.NetworkException
+import pt.viabilize.blissandroidchallenge.data.local.dao.AvatarDao
 import pt.viabilize.blissandroidchallenge.data.local.dao.EmojiDao
+import pt.viabilize.blissandroidchallenge.data.local.mapper.toAvatar
+import pt.viabilize.blissandroidchallenge.data.local.mapper.toEntity
+import pt.viabilize.blissandroidchallenge.data.local.model.AvatarEntity
 import pt.viabilize.blissandroidchallenge.data.local.model.EmojiEntity
+import pt.viabilize.blissandroidchallenge.data.remote.AvatarResponse
 import retrofit2.Response
 
 class GitHubRepositoryTest {
@@ -27,7 +35,13 @@ class GitHubRepositoryTest {
     lateinit var emojiDao: EmojiDao
 
     @MockK
-    lateinit var response: Response<Map<String, String>>
+    lateinit var avatarDao: AvatarDao
+
+    @MockK
+    lateinit var emojiResponse: Response<Map<String, String>>
+
+    @MockK
+    lateinit var avatarResponse: Response<AvatarResponse>
 
     @InjectMockKs
     lateinit var gitHubRepositoryImpl: GitHubRepositoryImpl
@@ -39,13 +53,24 @@ class GitHubRepositoryTest {
         EmojiEntity("3", "third")
     )
 
+    val avatarResponseBody = AvatarResponse(
+        id = 223156L,
+        login = "blissapps",
+        avatarUrl = "https://avatars.githubusercontent.com/u/223156?v=4"
+    )
+
+    val avatar = avatarResponseBody.toAvatar()
+
     @Before
     fun setup () {
         MockKAnnotations.init(this)
 
-        coEvery { githubDatasource.listEmojis() } returns response
-        every { response.body() } returns responseBody
+        coEvery { githubDatasource.listEmojis() } returns emojiResponse
+        coEvery { githubDatasource.searchAvatar(any()) } returns avatarResponse
+        every { emojiResponse.body() } returns responseBody
+        every { avatarResponse.body() } returns avatarResponseBody
         every { emojiDao.insertAll(*anyVararg<EmojiEntity>()) } returns Unit
+        every { avatarDao.insertAll(any()) } returns Unit
     }
 
     @Test
@@ -73,5 +98,74 @@ class GitHubRepositoryTest {
         assertEquals(3, result.size)
 
         verify(exactly = 0) { emojiDao.insertAll(*anyVararg<EmojiEntity>()) }
+    }
+
+    @Test
+    fun testFindAvatar_noLocalData_success() {
+        every { avatarDao.findByName(any()) } returns null
+        every { avatarResponse.code() } returns 200
+
+        val result = runBlocking {
+            gitHubRepositoryImpl.findAvatar("test_username")
+        }
+
+        assertNotNull(result)
+        assertEquals(223156L, result.id)
+        assertEquals("blissapps", result.login)
+        assertEquals("https://avatars.githubusercontent.com/u/223156?v=4", result.avatarUrl)
+        verify(exactly = 1) { avatarDao.insertAll(any(AvatarEntity::class)) }
+    }
+
+    @Test
+    fun testFindAvatar_withLocalData_success() {
+        every { avatarDao.findByName(any()) } returns avatar.toEntity()
+
+        val result = runBlocking {
+            gitHubRepositoryImpl.findAvatar("test_username")
+        }
+
+        assertNotNull(result)
+        assertEquals(223156L, result.id)
+        assertEquals("blissapps", result.login)
+        assertEquals("https://avatars.githubusercontent.com/u/223156?v=4", result.avatarUrl)
+        coVerify(exactly = 0) { githubDatasource.searchAvatar(any()) }
+    }
+
+
+    @Test
+    fun testFindAvatar_noLocalData_parseException() {
+        every { avatarDao.findByName(any()) } returns null
+        every { avatarResponse.code() } returns 200
+        every { avatarResponse.body() } returns null
+
+        Assert.assertThrows(SerializationException::class.java) {
+            runBlocking {
+                gitHubRepositoryImpl.findAvatar("test_username")
+            }
+        }
+    }
+
+    @Test
+    fun testFindAvatar_noLocalData_avatarNotFound() {
+        every { avatarDao.findByName(any()) } returns null
+        every { avatarResponse.code() } returns 404
+
+        Assert.assertThrows(AvatarNotFoundException::class.java) {
+            runBlocking {
+                gitHubRepositoryImpl.findAvatar("test_username")
+            }
+        }
+    }
+
+    @Test
+    fun testFindAvatar_noLocalData_networkError() {
+        every { avatarDao.findByName(any()) } returns null
+        every { avatarResponse.code() } returns 500
+
+        Assert.assertThrows(NetworkException::class.java) {
+            runBlocking {
+                gitHubRepositoryImpl.findAvatar("test_username")
+            }
+        }
     }
 }

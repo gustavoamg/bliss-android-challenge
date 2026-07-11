@@ -2,4 +2,5 @@
     <string name="app_name">Bliss Android Challenge</string>
     <string name="random_emoji">Random Emoji</string>
     <string name="emoji_list">Emoji List</string>
+    <string name="search_avatar">Search Avatar</string>
 </resources>

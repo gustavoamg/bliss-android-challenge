@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import pt.viabilize.blissandroidchallenge.data.local.LocalDatabase
+import pt.viabilize.blissandroidchallenge.data.local.dao.AvatarDao
 import pt.viabilize.blissandroidchallenge.data.local.dao.EmojiDao
 import javax.inject.Singleton
 
@@ -28,5 +29,11 @@ class DatabaseModule {
     @Provides
     fun provideEmojiDao (localDatabase: LocalDatabase) : EmojiDao {
         return localDatabase.emojiDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideAvatarDao (localDatabase: LocalDatabase) : AvatarDao {
+        return localDatabase.avatarDao()
     }
 }

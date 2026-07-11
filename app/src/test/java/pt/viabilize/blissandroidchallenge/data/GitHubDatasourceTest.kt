@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
+import pt.viabilize.blissandroidchallenge.util.readResourceFile
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.InputStreamReader
@@ -46,7 +47,7 @@ class GitHubDatasourceTest {
 
     @Test
     fun test_should_parse_response_successfully() {
-        val jsonContent = readResourceFile("emoji_response.json")
+        val jsonContent = readResourceFile("emoji_response.json", javaClass.classLoader)
         val mockResponse = MockResponse()
             .setResponseCode(200)
             .setBody(jsonContent)
@@ -67,9 +68,28 @@ class GitHubDatasourceTest {
         assertEquals("GET", recordedRequest.method)
     }
 
-    private fun readResourceFile(fileName: String): String {
-        val inputStream = javaClass.classLoader?.getResourceAsStream(fileName)
-            ?: throw IllegalArgumentException("Arquivo não encontrado: $fileName")
-        return InputStreamReader(inputStream).readText()
+    @Test
+    fun test_should_parse_avatar_response_successfully() {
+        val jsonContent = readResourceFile("avatar_response.json", javaClass.classLoader)
+        val mockResponse = MockResponse()
+            .setResponseCode(200)
+            .setBody(jsonContent)
+
+        mockWebServer.enqueue(mockResponse)
+
+        val response = runBlocking {
+            apiService.searchAvatar("any_user")
+        }
+
+        assertNotNull(response)
+        val responseBody = response.body()
+        assertNotNull(responseBody)
+        assertEquals(223156L, responseBody?.id)
+        assertEquals("blissapps", responseBody?.login)
+        assertEquals("https://avatars.githubusercontent.com/u/223156?v=4", responseBody?.avatarUrl)
+
+        val recordedRequest = mockWebServer.takeRequest()
+        assertEquals("/users/any_user", recordedRequest.path)
+        assertEquals("GET", recordedRequest.method)
     }
 }

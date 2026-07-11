@@ -5,4 +5,6 @@ interface MainScreenActions {
     data object RandomEmojiButtonAction : MainScreenActions
 
     data object EmojiListButtonClick : MainScreenActions
+
+    data class SearchAvatar(val username: String) : MainScreenActions
 }

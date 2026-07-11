@@ -38,6 +38,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            // Forces all unmocked Android stubs (like Log.i) to return default values instead of crashing
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
