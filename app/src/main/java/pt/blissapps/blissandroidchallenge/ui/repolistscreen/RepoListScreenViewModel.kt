@@ -63,12 +63,12 @@ class RepoListScreenViewModel @Inject constructor(
                 if(!isLastPageReached) {
                     currentPage++
                 }
+                isPageLoading = false
             }
         }
         catch (e: Exception) {
             Log.e("LOADING_REPO_ERROR", e.message ?: "Unknown error")
             _uiState.update { it.copy(isLoading = false ) }
-        } finally {
             isPageLoading = false
         }
     }
