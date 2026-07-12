@@ -68,13 +68,15 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun searchAvatar(username: String) {
+        if(username.isEmpty()) return
+
         _uiState.update {
             it.copy(isSearching = true)
         }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val avatar = gitHubRepository.findAvatar(username)
+                val avatar = gitHubRepository.findAvatar(username.lowercase().trim())
                 _uiState.update {
                     it.copy(imageUrl = avatar.avatarUrl)
                 }
