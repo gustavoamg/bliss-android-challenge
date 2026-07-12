@@ -36,6 +36,6 @@ class HiltConfigurationTest {
         assertNotNull(context)
 
         // Verifica se o contexto recuperado corresponde ao pacote correto do seu app
-        assertEquals("pt.viabilize.blissandroidchallenge", context.packageName)
+        assertEquals("pt.blissapps.blissandroidchallenge", context.packageName)
     }
 }
