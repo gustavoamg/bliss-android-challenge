@@ -20,7 +20,4 @@ interface EmojiDao {
 
     @Delete
     fun delete(user: EmojiEntity)
-
-    @Query("DELETE FROM emoji WHERE name = :name")
-    fun deleteByName(name: Int)
 }
