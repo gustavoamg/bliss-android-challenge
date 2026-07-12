@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Bliss Android(Challenge"
+rootProject.name = "Bliss Android Challenge"
 include(":app")
