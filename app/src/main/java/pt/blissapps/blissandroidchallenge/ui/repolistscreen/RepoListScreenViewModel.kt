@@ -37,16 +37,16 @@ class RepoListScreenViewModel @Inject constructor(
         )
 
     fun loadNextPage() {
-        try {
-            if (isPageLoading || isLastPageReached) return
+        if (isPageLoading || isLastPageReached) return
 
-            isPageLoading = true
+        isPageLoading = true
 
-            _uiState.update {
-                it.copy(isLoading = true)
-            }
+        _uiState.update {
+            it.copy(isLoading = true)
+        }
 
-            viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val currentPageList = gitHubRepository.loadRepos(username, currentPage, reposPerPage)
 
                 if (currentPageList.isEmpty() || currentPageList.size < reposPerPage ) {
@@ -65,11 +65,11 @@ class RepoListScreenViewModel @Inject constructor(
                 }
                 isPageLoading = false
             }
-        }
-        catch (e: Exception) {
-            Log.e("LOADING_REPO_ERROR", e.message ?: "Unknown error")
-            _uiState.update { it.copy(isLoading = false ) }
-            isPageLoading = false
+            catch (e: Exception) {
+                Log.e("LOADING_REPO_ERROR", e.message ?: "Unknown error")
+                _uiState.update { it.copy(isLoading = false ) }
+                isPageLoading = false
+            }
         }
     }
 }
