@@ -76,4 +76,15 @@ class GitHubRepositoryImpl @Inject constructor(
             avatarLocal.toAvatar()
         }
     }
+
+    override suspend fun getAvatarList(): List<Avatar> {
+        Log.i (TAG, "Loading avatar list")
+        return avatarDatasourceLocal.getAll().map {
+            it.toAvatar()
+        }
+    }
+
+    override suspend fun removeAvatar(avatar: Avatar) {
+        avatarDatasourceLocal.delete(avatar.toEntity())
+    }
 }

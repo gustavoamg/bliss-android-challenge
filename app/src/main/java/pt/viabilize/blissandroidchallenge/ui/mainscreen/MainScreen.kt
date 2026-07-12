@@ -43,7 +43,8 @@ import pt.viabilize.blissandroidchallenge.ui.mainscreen.components.AvatarSearchC
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = hiltViewModel(),
-    onNavigateToEmojiList: () -> Unit
+    onNavigateToEmojiList: () -> Unit,
+    onNavigateToAvatarList: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -69,6 +70,9 @@ fun MainScreen(
             when (mainScreenActions) {
                 is MainScreenActions.EmojiListButtonClick -> {
                     onNavigateToEmojiList()
+                }
+                is MainScreenActions.AvatarListButtonClick -> {
+                    onNavigateToAvatarList()
                 }
                 else -> viewModel.onAction(mainScreenActions)
             }
@@ -143,6 +147,15 @@ fun MainScreenContents(
             ) {
                 Text(
                     text = stringResource(R.string.emoji_list)
+                )
+            }
+            Button(
+                onClick = {
+                    onAction(MainScreenActions.AvatarListButtonClick)
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.list_avatars)
                 )
             }
         }

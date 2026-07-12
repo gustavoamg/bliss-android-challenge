@@ -8,4 +8,8 @@ interface GitHubRepository {
     suspend fun getEmojiList() : List<Emoji>
 
     suspend fun findAvatar(username: String) : Avatar
+
+    suspend fun getAvatarList() : List<Avatar>
+
+    suspend fun removeAvatar(avatar: Avatar)
 }

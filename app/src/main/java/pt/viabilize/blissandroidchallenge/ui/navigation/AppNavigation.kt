@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
+import pt.viabilize.blissandroidchallenge.ui.avatarlistscreen.AvatarListScreen
 import pt.viabilize.blissandroidchallenge.ui.emojilistscreen.EmojiListScreen
 import pt.viabilize.blissandroidchallenge.ui.mainscreen.MainScreen
 
@@ -19,6 +20,9 @@ sealed interface NavDestination: NavKey {
 
     @Serializable
     data object EmojiListScreen : NavDestination
+
+    @Serializable
+    data object AvatarListScreen :  NavDestination
 }
 
 @Composable
@@ -39,11 +43,17 @@ fun AppNavigation(
                 MainScreen(
                     onNavigateToEmojiList = {
                         backStack.add(NavDestination.EmojiListScreen)
+                    },
+                    onNavigateToAvatarList = {
+                        backStack.add(NavDestination.AvatarListScreen)
                     }
                 )
             }
             entry<NavDestination.EmojiListScreen> {
                 EmojiListScreen()
+            }
+            entry<NavDestination.AvatarListScreen> {
+                AvatarListScreen()
             }
         }
     )

@@ -19,5 +19,5 @@ interface AvatarDao {
     fun insertAll(vararg avatarEntities: AvatarEntity)
 
     @Delete
-    fun delete(user: AvatarEntity)
+    fun delete(avatar: AvatarEntity)
 }

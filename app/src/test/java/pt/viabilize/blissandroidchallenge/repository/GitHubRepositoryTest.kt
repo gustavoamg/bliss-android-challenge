@@ -53,6 +53,12 @@ class GitHubRepositoryTest {
         EmojiEntity("3", "third")
     )
 
+    val avatarEntityList = listOf(
+        AvatarEntity(1, "avatar1", "avatar1_url"),
+        AvatarEntity(2, "avatar2", "avatar2_url"),
+        AvatarEntity(3, "avatar3", "avatar3_url")
+    )
+
     val avatarResponseBody = AvatarResponse(
         id = 223156L,
         login = "blissapps",
@@ -131,6 +137,18 @@ class GitHubRepositoryTest {
         coVerify(exactly = 0) { githubDatasource.searchAvatar(any()) }
     }
 
+    @Test
+    fun testDeleteAvatar_withLocalData_success() {
+        every { avatarDao.delete(any()) } returns Unit
+
+        val result = runBlocking {
+            gitHubRepositoryImpl.removeAvatar(avatar)
+        }
+
+        assertNotNull(result)
+        coVerify(exactly = 1) { avatarDao.delete(any<AvatarEntity>()) }
+    }
+
 
     @Test
     fun testFindAvatar_noLocalData_parseException() {
@@ -167,5 +185,20 @@ class GitHubRepositoryTest {
                 gitHubRepositoryImpl.findAvatar("test_username")
             }
         }
+    }
+
+    @Test
+    fun testListAvatars_success() {
+        every { avatarDao.getAll() } returns avatarEntityList
+
+        val result = runBlocking {
+            gitHubRepositoryImpl.getAvatarList()
+        }
+
+        assertNotNull(result)
+        val avatar1 = result[0]
+        assertEquals(1L, avatar1.id)
+        assertEquals("avatar1", avatar1.login)
+        assertEquals("avatar1_url", avatar1.avatarUrl)
     }
 }
