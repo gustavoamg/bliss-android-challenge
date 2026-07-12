@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "pt.viabilize.blissandroidchallenge"
+    namespace = "pt.blissapps.blissandroidchallenge"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -15,13 +15,13 @@ android {
     }
 
     defaultConfig {
-        applicationId = "pt.viabilize.blissandroidchallenge"
+        applicationId = "pt.blissapps.blissandroidchallenge"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "pt.viabilize.blissandroidchallenge.di.HiltTestRunner"
+        testInstrumentationRunner = "pt.blissapps.blissandroidchallenge.di.HiltTestRunner"
     }
 
     buildTypes {
