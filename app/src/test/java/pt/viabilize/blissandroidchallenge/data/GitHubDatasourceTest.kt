@@ -13,7 +13,6 @@ import org.junit.Test
 import pt.viabilize.blissandroidchallenge.util.readResourceFile
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import java.io.InputStreamReader
 
 
 class GitHubDatasourceTest {
@@ -90,6 +89,29 @@ class GitHubDatasourceTest {
 
         val recordedRequest = mockWebServer.takeRequest()
         assertEquals("/users/any_user", recordedRequest.path)
+        assertEquals("GET", recordedRequest.method)
+    }
+
+    @Test
+    fun test_should_parse_repos_response_successfully() {
+        val jsonContent = readResourceFile("repos_response.json", javaClass.classLoader)
+        val mockResponse = MockResponse()
+            .setResponseCode(200)
+            .setBody(jsonContent)
+
+        mockWebServer.enqueue(mockResponse)
+
+        val response = runBlocking {
+            apiService.loadRepositories("any_user", 1, 5)
+        }
+
+        assertNotNull(response)
+        val responseBody = response.body()
+        assertNotNull(responseBody)
+        assertEquals(5, responseBody?.size)
+
+        val recordedRequest = mockWebServer.takeRequest()
+        assertEquals("/users/any_user/repos?page=1&per_page=5", recordedRequest.path)
         assertEquals("GET", recordedRequest.method)
     }
 }

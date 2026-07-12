@@ -44,7 +44,8 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = hiltViewModel(),
     onNavigateToEmojiList: () -> Unit,
-    onNavigateToAvatarList: () -> Unit
+    onNavigateToAvatarList: () -> Unit,
+    onNavigateToGoogleRepos: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -73,6 +74,9 @@ fun MainScreen(
                 }
                 is MainScreenActions.AvatarListButtonClick -> {
                     onNavigateToAvatarList()
+                }
+                is MainScreenActions.GoogleReposButtonClick -> {
+                    onNavigateToGoogleRepos()
                 }
                 else -> viewModel.onAction(mainScreenActions)
             }
@@ -156,6 +160,15 @@ fun MainScreenContents(
             ) {
                 Text(
                     text = stringResource(R.string.list_avatars)
+                )
+            }
+            Button(
+                onClick = {
+                    onAction(MainScreenActions.GoogleReposButtonClick)
+                }
+            ) {
+                Text(
+                    text = stringResource(R.string.google_repos)
                 )
             }
         }

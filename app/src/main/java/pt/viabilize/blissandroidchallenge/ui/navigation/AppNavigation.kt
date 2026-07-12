@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import pt.viabilize.blissandroidchallenge.ui.avatarlistscreen.AvatarListScreen
 import pt.viabilize.blissandroidchallenge.ui.emojilistscreen.EmojiListScreen
 import pt.viabilize.blissandroidchallenge.ui.mainscreen.MainScreen
+import pt.viabilize.blissandroidchallenge.ui.repolistscreen.RepoListScreen
 
 @Serializable
 sealed interface NavDestination: NavKey {
@@ -23,6 +24,9 @@ sealed interface NavDestination: NavKey {
 
     @Serializable
     data object AvatarListScreen :  NavDestination
+
+    @Serializable
+    data object GoogleReposScreen :  NavDestination
 }
 
 @Composable
@@ -46,6 +50,9 @@ fun AppNavigation(
                     },
                     onNavigateToAvatarList = {
                         backStack.add(NavDestination.AvatarListScreen)
+                    },
+                    onNavigateToGoogleRepos = {
+                        backStack.add(NavDestination.GoogleReposScreen)
                     }
                 )
             }
@@ -54,6 +61,9 @@ fun AppNavigation(
             }
             entry<NavDestination.AvatarListScreen> {
                 AvatarListScreen()
+            }
+            entry<NavDestination.GoogleReposScreen> {
+                RepoListScreen()
             }
         }
     )

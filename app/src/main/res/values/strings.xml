@@ -4,5 +4,7 @@
     <string name="emoji_list">Emoji List</string>
     <string name="search_avatar">Search Avatar</string>
     <string name="list_avatars">List Avatars</string>
+    <string name="google_repos">Google Repos</string>
+    <string name="loading_repos">Loading repos</string>
     <string name="no_avatar_available">There are no avatars to display</string>
 </resources>

@@ -11,9 +11,11 @@ import pt.viabilize.blissandroidchallenge.data.local.mapper.toAvatar
 import pt.viabilize.blissandroidchallenge.data.local.mapper.toEmoji
 import pt.viabilize.blissandroidchallenge.data.local.mapper.toEmojiEntity
 import pt.viabilize.blissandroidchallenge.data.local.mapper.toEntity
+import pt.viabilize.blissandroidchallenge.data.local.mapper.toRepo
 import pt.viabilize.blissandroidchallenge.data.local.model.AvatarEntity
 import pt.viabilize.blissandroidchallenge.model.Avatar
 import pt.viabilize.blissandroidchallenge.model.Emoji
+import pt.viabilize.blissandroidchallenge.model.Repo
 import javax.inject.Inject
 
 class GitHubRepositoryImpl @Inject constructor(
@@ -86,5 +88,18 @@ class GitHubRepositoryImpl @Inject constructor(
 
     override suspend fun removeAvatar(avatar: Avatar) {
         avatarDatasourceLocal.delete(avatar.toEntity())
+    }
+
+    override suspend fun loadRepos(user: String, page: Int, perPage: Int): List<Repo> {
+        Log.i (TAG, "Loading avatar list")
+        val repositoriesResponse = gitHubDataSourceRemote.loadRepositories(user, page, perPage)
+        when(repositoriesResponse.code()) {
+            200 -> {
+                return repositoriesResponse.body()?.map { it.toRepo() } ?: emptyList()
+            }
+            else -> {
+                throw NetworkException()
+            }
+        }
     }
 }

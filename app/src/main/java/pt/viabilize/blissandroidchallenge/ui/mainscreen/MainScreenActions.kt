@@ -9,4 +9,6 @@ interface MainScreenActions {
     data class SearchAvatar(val username: String) : MainScreenActions
 
     data object AvatarListButtonClick : MainScreenActions
+
+    data object GoogleReposButtonClick : MainScreenActions
 }
